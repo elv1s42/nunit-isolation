@@ -1,9 +1,10 @@
 using System;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 
 namespace NUnit.Isolation.Api
 {
-    public enum Isolations
+    public enum IsolationType
     {
         AppDomain,
         Process
@@ -12,28 +13,25 @@ namespace NUnit.Isolation.Api
     [AttributeUsage(AttributeTargets.Method)]
     public class IsolationAttribute : Attribute, ITestAction
     {
-        private readonly Isolations mIsolation;
+        private readonly IsolationType mIsolationType;
         private readonly bool mAttachDebugger;
 
-        public IsolationAttribute(Isolations isolation, bool attachDebugger = false)
+        public IsolationAttribute(IsolationType isolationType, bool attachDebugger = false)
         {
-            mIsolation = isolation;
+            mIsolationType = isolationType;
             mAttachDebugger = attachDebugger;
         }
 
-        public void BeforeTest(TestDetails testDetails)
+        public void BeforeTest(ITest test)
         {
-            var testMethodInformation = new TestMethodInformation(testDetails.Method, mAttachDebugger);
-            IsolationDispatcher.IsolateTestRun(mIsolation, testMethodInformation);
+            var testMethodInformation = new TestMethodInformation(test.Method.MethodInfo, mAttachDebugger);
+            IsolationDispatcher.IsolateTestRun(mIsolationType, testMethodInformation);
         }
 
-        public void AfterTest(TestDetails testDetails)
+        public void AfterTest(ITest test)
         {
         }
 
-        public ActionTargets Targets
-        {
-            get { return ActionTargets.Test; }
-        }
+        public ActionTargets Targets => ActionTargets.Test;
     }
 }

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using NUnit.Framework;
+using NUnit.Isolation.Exceptions;
 
 namespace NUnit.Isolation
 {
@@ -10,22 +11,23 @@ namespace NUnit.Isolation
     {
         public static void Run(TestMethodInformation testMethodInformation)
         {
-            var startInfo = new ProcessStartInfo();
-            startInfo.FileName = new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath;
-            startInfo.Arguments = string.Format(@" ""{0}"" ""{1}"" ""{2}"" ""{3}"" ",
-                                            testMethodInformation.AttachDebugger, 
-                                            testMethodInformation.AssemblyName, 
-                                            testMethodInformation.TypeAssemblyQualifiedName,
-                                            testMethodInformation.TestMethodName);
-
-            startInfo.RedirectStandardOutput = true;
-            startInfo.RedirectStandardError = true;
-            startInfo.CreateNoWindow = true;
-            startInfo.ErrorDialog = false;
-            startInfo.UseShellExecute = false;
-
-            var process = new Process();
-            process.StartInfo = startInfo;
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath,
+                Arguments =
+                    $@" ""{testMethodInformation.AttachDebugger}"" ""{testMethodInformation.AssemblyName}"" ""{testMethodInformation
+                        .TypeAssemblyQualifiedName}"" ""{testMethodInformation.TestMethodName}"" ",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                ErrorDialog = false,
+                UseShellExecute = false
+            };
+            
+            var process = new Process
+            {
+                StartInfo = startInfo
+            };
             process.OutputDataReceived += (sender, eventArgs) => Console.WriteLine(eventArgs.Data);
             process.ErrorDataReceived += (sender, eventArgs) => Console.Error.WriteLine(eventArgs.Data);
             
@@ -45,12 +47,13 @@ namespace NUnit.Isolation
                 }
             }
 
-            if (process.ExitCode != 0)
-                throw new TestRunInSubProcessFailedException("Test failed. See output for more information about the exception");
+            var exitCode = process.ExitCode;
+            if (exitCode != 0)
+                throw new TestRunInSubProcessFailedException($"Isolated test failed (ExitCode = {exitCode}). " +
+                                                             $"See output for more information about the exception");
 
             // everything ok
             Assert.Pass();
-
         }
     }
 }

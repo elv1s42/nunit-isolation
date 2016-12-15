@@ -9,17 +9,17 @@ namespace NUnit.Isolation
         public static bool IsRootAppDomainOfIsolatedProcess { get; set; }
         public static bool IsInIsolatedAppDomain { get; set; }
 
-        public static void IsolateTestRun(Isolations isolation, TestMethodInformation testMethodInformation)
+        public static void IsolateTestRun(IsolationType isolationType, TestMethodInformation testMethodInformation)
         {
             if (IsInIsolatedAppDomain)
                 return;
 
-            switch (isolation)
+            switch (isolationType)
             {
-                case Isolations.AppDomain:
+                case IsolationType.AppDomain:
                     AppDomainRunner.Run(testMethodInformation, true);
                     break;
-                case Isolations.Process:
+                case IsolationType.Process:
                     ProcessRunner.Run(testMethodInformation);
                     break;
 

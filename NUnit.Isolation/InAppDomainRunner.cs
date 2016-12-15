@@ -9,18 +9,18 @@ namespace NUnit.Isolation
         public void Execute(TestMethodInformation testMethodInformation)
         {
             IsolationDispatcher.IsInIsolatedAppDomain = true;
-
-            // todo: re-use Nunit material instead of doing this ourself
+            
+            // TODO: re-use Nunit material instead of doing this ourself
 
             //Assembly assembly = Assembly.Load(testMethodInformation.AssemblyName);
             //List<Type> types = assembly.GetTypes().ToList();
 
-            Type typeUnderTest = Type.GetType(testMethodInformation.TypeAssemblyQualifiedName);
+            var typeUnderTest = Type.GetType(testMethodInformation.TypeAssemblyQualifiedName);
 
             if (typeUnderTest == null)
                 throw new TypeLoadException(testMethodInformation.TypeAssemblyQualifiedName);
 
-            object instance = Activator.CreateInstance(typeUnderTest);
+            var instance = Activator.CreateInstance(typeUnderTest);
 
             typeUnderTest.GetMethods()
                 .Where(m => m.GetCustomAttributes(typeof(SetUpFixtureAttribute), false).Length > 0)
@@ -28,7 +28,7 @@ namespace NUnit.Isolation
                 .ForEach(m => m.Invoke(instance, null));
 
             typeUnderTest.GetMethods()
-                .Where(m => m.GetCustomAttributes(typeof(TestFixtureTearDownAttribute), false).Length > 0)
+                .Where(m => m.GetCustomAttributes(typeof(OneTimeTearDownAttribute), false).Length > 0)
                 .ToList()
                 .ForEach(m => m.Invoke(instance, null));
 

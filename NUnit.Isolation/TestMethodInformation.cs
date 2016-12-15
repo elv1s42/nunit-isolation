@@ -17,7 +17,7 @@ namespace NUnit.Isolation
         public TestMethodInformation(MethodBase method, bool attachDebugger)
         {
             if (method == null)
-                throw new ArgumentNullException("method");
+                throw new ArgumentNullException(nameof(method));
 
             if (method.DeclaringType == null)
                 throw new ArgumentException("method expected to have a valid DecalringType but it is null");
@@ -38,33 +38,16 @@ namespace NUnit.Isolation
         #endregion
 
         #region public properties
-        public string AssemblyName
-        {
-            get { return mAssemblyName; }
-        }
+        public string AssemblyName => mAssemblyName;
 
-        public string ConfigurationFile
-        {
-            // TODO: case unit test are in exe
-            get { return mAssemblyName + ".dll.config"; }
-        }
+        // TODO: case unit test are in exe
+        public string ConfigurationFile => mAssemblyName + ".dll.config";
 
-        public string TypeAssemblyQualifiedName
-        {
-            get { return mTypeAssemblyQualifiedName; }
-        }
+        public string TypeAssemblyQualifiedName => mTypeAssemblyQualifiedName;
 
-        public string TestMethodName
-        {
-            get { return mTestMethodName; }
-        }
+        public string TestMethodName => mTestMethodName;
 
-        public bool AttachDebugger
-        {
-            get {
-                return mAttachDebugger;
-            }
-        }
+        public bool AttachDebugger => mAttachDebugger;
 
         #endregion
     }

@@ -12,19 +12,20 @@ namespace NUnit.Isolation
 
         public static void Run(TestMethodInformation testMethodInformation, bool unloadAppDomain)
         {
-            var appDomainSetup = new AppDomainSetup();
-            appDomainSetup.ApplicationBase = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-            appDomainSetup.ConfigurationFile = testMethodInformation.ConfigurationFile;            
-
-            AppDomain appDomain = AppDomain.CreateDomain(ISOLATED_APP_DOMAIN_NAME, null, appDomainSetup, GetPermissionSet());
+            var appDomainSetup = new AppDomainSetup
+            {
+                ApplicationBase = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath),
+                ConfigurationFile = testMethodInformation.ConfigurationFile
+            };
+            
+            var appDomain = AppDomain.CreateDomain(ISOLATED_APP_DOMAIN_NAME, null, appDomainSetup, GetPermissionSet());
             appDomain.Load(testMethodInformation.AssemblyName);
 
             var instance = (InAppDomainRunner)appDomain.CreateInstanceAndUnwrap(
-              typeof(InAppDomainRunner).Assembly.FullName,
-              typeof(InAppDomainRunner).FullName);
-
-
-            try 
+                typeof(InAppDomainRunner).Assembly.FullName,
+                typeof(InAppDomainRunner).FullName);
+            
+            try
             {
                 instance.Execute(testMethodInformation);
             } 
@@ -34,7 +35,6 @@ namespace NUnit.Isolation
                     AppDomain.Unload(appDomain);
             }
         }
-
 
         private static PermissionSet GetPermissionSet()
         {
